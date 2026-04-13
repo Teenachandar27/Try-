@@ -1,0 +1,535 @@
+
+This is a big step up from the static resume site! This project involves Java (JUnit) and Kubernetes, which are standard in the industry.
+
+Since you are a beginner, we will break this down into "The Big Picture" first, then tackle the first coding task.
+
+🏗️ The Big Picture
+To finish this project, you will build these layers:
+
+The Logic (Java): A small program that calculates a discount (e.g., "If it's Summer, give 20% off").
+
+The Test (JUnit): A separate script that checks if your math is correct.
+
+The Container (Docker): Putting that Java app into a Docker image.
+
+The Pipeline (Jenkins): Automating the test and build.
+
+The Orchestrator (Kubernetes): Running that container in a way that can handle millions of users.
+
+🚀 Phase 1: Java & Discount Logic
+Since you need JUnit tests, we’ll use Java. If you don't have a Java environment set up in VS Code yet, let's start with the code logic.
+
+1. Create the Project Folder
+In VS Code, create a new folder called discount-system. Inside it, create a file named DiscountCalculator.java.
+
+2. Write the Logic
+Paste this simple logic into DiscountCalculator.java:
+
+Java
+public class DiscountCalculator {
+    
+    public double calculateDiscount(double price, String season, int inventoryLevel) {
+        double discount = 0.0;
+
+        // Season-based logic
+        if (season.equalsIgnoreCase("Summer")) {
+            discount = 0.20; // 20% off
+        } 
+        
+        // Inventory-based logic (if stock is high, bigger discount)
+        if (inventoryLevel > 100) {
+            discount += 0.10; // Extra 10% off
+        }
+
+        return price * (1 - discount);
+    }
+
+    public static void main(String[] args) {
+        DiscountCalculator calc = new DiscountCalculator();
+        System.out.println("Final Price: " + calc.calculateDiscount(100.0, "Summer", 150));
+    }
+}
+🧪 Phase 2: Writing the JUnit Test
+This fulfills your task: "Write JUnit tests for regular discounts."
+
+Create a file named DiscountTest.java. This script "acts" like a customer to see if the math works.
+
+Java
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
+public class DiscountTest {
+    @Test
+    public void testSummerDiscount() {
+        DiscountCalculator calc = new DiscountCalculator();
+        // $100 price, Summer, High Inventory should be $70 (30% total discount)
+        double result = calc.calculateDiscount(100.0, "Summer", 150);
+        assertEquals(70.0, result, 0.01);
+    }
+}
+🐳 Phase 3: Dockerizing it
+Your Dockerfile for Java will look slightly different than the Nginx one.
+
+Create a Dockerfile:
+
+Dockerfile
+# Use a Java environment
+FROM openjdk:17-jdk-slim
+COPY . /app
+WORKDIR /app
+# Compile the code
+RUN javac DiscountCalculator.java
+# Run the code
+CMD ["java", "DiscountCalculator"]
+☸️ What is Kubernetes? (The New Part)
+The image mentions Kubernetes. Think of Docker as a single car and Kubernetes as the traffic controller for a whole fleet of cars.
+
+For a beginner, you won't "run" Kubernetes commands until your Docker image is built and pushed to GitHub.
+
+Your Immediate Next Steps:
+Do you have the Java Extension Pack installed in VS Code? (You'll need it to run the JUnit tests).
+
+Does the code above make sense, or should we slow down and explain how the if statements work for the discount?
+
+ALREADY THIS IS THERE WHAT TO DO?
+
+You've got a great start! You have a Maven project structure (I see that pom.xml), your Java files, and a blank Jenkinsfile.
+
+To complete the Dynamic Discount System, you need to fill in that Jenkinsfile and your Java code so they actually do the work.
+
+1. The Code (App.java)
+Open App.java and replace its content with the discount logic. This is the "brain" of your system.
+
+Java
+package com.example; // Make sure this matches your folder structure
+
+public class App {
+    public double calculateDiscount(double price, String season, int inventory) {
+        double discount = 0.0;
+        
+        if (season.equalsIgnoreCase("Summer")) discount += 0.10;
+        if (inventory > 100) discount += 0.20; // High stock = bigger discount
+        
+        return price * (1 - discount);
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Discount System Active!");
+    }
+}
+2. The Test (AppTest.java)
+Open AppTest.java. This fulfills the "JUnit tests" requirement from your assignment.
+
+Java
+package com.example;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
+public class AppTest {
+    @Test
+    public void testDiscount() {
+        App app = new App();
+        // $100 price, Summer, 150 items should give 30% off ($70)
+        assertEquals(70.0, app.calculateDiscount(100.0, "Summer", 150), 0.01);
+    }
+}
+3. The Automation (Jenkinsfile)
+Now, go back to that Jenkinsfile in your screenshot and paste this. This tells Jenkins how to build, test, and "Dockerize" your app automatically.
+
+Groovy
+pipeline {
+    agent any
+    stages {
+        stage('Compile') {
+            steps {
+                bat 'mvn clean compile' 
+            }
+        }
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                // This creates your image after the tests pass
+                bat 'docker build -t discount-app .'
+            }
+        }
+    }
+}
+4. Create your Dockerfile
+You are missing a Dockerfile in your explorer. Create a new file named Dockerfile (no extension) in that main folder and paste:
+
+Dockerfile
+FROM openjdk:17-jdk-slim
+COPY target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+🛠️ What to do in your Terminal (PowerShell) now:
+Since you are in the terminal at the bottom of your screen, run this command to make sure Maven is working and your tests pass:
+
+PowerShell
+mvn test
+If you see "BUILD SUCCESS", you are ready to move to Jenkins and Kubernetes! Do you see a green "Build Success" message, or did you get an error about Maven (mvn) not being recognized?
+
+NO I WANT TO CRAETE NEW FOLDER HOW TO DELETE THOSE
+
+If you want to start completely fresh and delete that entire project folder to create a new one, follow these steps.
+
+1. Close the Folder in VS Code
+Before you can delete a folder that is currently open, you should "un-link" it from VS Code:
+
+Go to File (top left).
+
+Click Close Folder.
+
+The screen will go blank/purple.
+
+2. Delete the Folder (PowerShell)
+Since your terminal is already open to C:\Users\LENOVO\Desktop\my app, you can move "up" one level and delete it using these commands:
+
+PowerShell
+# Move out of the folder
+cd ..
+
+# Delete the folder and everything inside it
+Remove-Item -Recurse -Force "my app"
+3. Create the New Folder
+Now, stay in your terminal and create the new project folder for the Dynamic Discount System:
+
+PowerShell
+# Create new folder
+mkdir dynamic-discount-system
+
+# Enter the new folder
+cd dynamic-discount-system
+
+# Open it in VS Code
+code .
+💡 Why start fresh?
+Starting fresh is actually a great idea because your previous screenshot showed a Maven structure (pom.xml). While Maven is powerful, it can be very confusing for a "very beginner."
+
+Once you have your new empty folder open in VS Code, do you want to try the simpler "No-Maven" version first, or do you want to stick with the professional Maven setup?
+
+STILL THIS I COMPLETED
+
+Nice job getting that set up! You have the logic, the test, and the Docker recipe ready. However, I can see in your screenshot that your Dockerfile has some typos (likely from copying and pasting) that will cause an error when you try to build it.
+
+Let's fix the Dockerfile first, then run your first build.
+
+🛠️ Step 1: Fix the Dockerfile
+The letters at the start of your lines in the screenshot got cut off. Please replace everything in your Dockerfile with this exact text:
+
+Dockerfile
+# Use a Java environment
+FROM openjdk:17-jdk-slim
+
+# Copy your files into the container
+COPY . /app
+
+# Set the working folder
+WORKDIR /app
+
+# Compile the code
+RUN javac DiscountCalculator.java
+
+# Run the code
+CMD ["java", "DiscountCalculator"]
+🚀 Step 2: Build and Run (The Docker Moment)
+Now, open your Terminal at the bottom of VS Code (Ctrl + ~) and run these two commands one by one:
+
+1. Build the image:
+
+PowerShell
+docker build -t discount-app .
+(This follows the "recipe" you just fixed. It might take a minute the first time.)
+
+2. Run the container:
+
+PowerShell
+docker run discount-app
+What should happen: You should see the message: "Final Price: 70.0" pop up in your terminal. This means your Java code is running inside a Docker container!
+
+🧪 Step 3: Run your JUnit Test
+Your assignment specifically asked for JUnit tests. Since we aren't using Maven yet, we can run the test manually or via VS Code.
+
+Click on your DiscountTest.java file in the sidebar.
+
+Look for a small "Run Test" or "Debug Test" button appearing above the public class DiscountTest line.
+
+Click it. If it turns Green, your discount logic is officially verified!
+
+☸️ What's next? (Kubernetes)
+Once you see that "70.0" output from Docker, you have completed the "Docker" part of your assignment. The next (and hardest) part is Kubernetes.
+
+Did the "docker run" command work, or did you get a red error message?
+
+NOW WHAT SHLD I DO ?
+
+You have successfully built your Docker image! Now you need to fulfill the final and most "pro" part of your assignment: Kubernetes.
+
+In the industry, we don't just run one container; we use Kubernetes (K8s) to manage hundreds of them. Since you are a beginner, we will use a Manifest file (a YAML file) to tell Kubernetes how to run your discount system.
+
+☸️ Step 1: Create the Kubernetes Deployment
+In your discount-system folder in VS Code, create a new file named deployment.yaml.
+
+Paste this code inside:
+
+YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discount-deployment
+spec:
+  replicas: 2 # This tells K8s to run TWO copies of your app for safety
+  selector:
+    matchLabels:
+      app: discount-system
+  template:
+    metadata:
+      labels:
+        app: discount-system
+    spec:
+      containers:
+      - name: discount-app
+        image: discount-app # This uses the image you just built
+        imagePullPolicy: Never # Tells K8s to look on your computer, not the internet
+🚀 Step 2: Apply to Kubernetes
+To run this, you need to make sure Kubernetes is enabled in your Docker Desktop settings.
+
+Open Docker Desktop.
+
+Click the Settings (gear icon) -> Kubernetes.
+
+Check "Enable Kubernetes" and click Apply & Restart. (Wait until the little boat icon in the bottom corner turns green).
+
+Once it's ready, run this in your VS Code Terminal:
+
+PowerShell
+kubectl apply -f deployment.yaml
+📊 Step 3: Verify it's Working
+Run this command to see your "Fleet" of discount apps running:
+
+PowerShell
+kubectl get pods
+What you should see: Two rows showing discount-deployment-... with a status of Running.
+
+✅ The Final Checklist
+To finish your assignment completely, you should now have:
+
+Java Code: DiscountCalculator.java (Logic complete).
+
+JUnit Test: DiscountTest.java (Passed).
+
+Docker: Dockerfile (Built and Run).
+
+Kubernetes: deployment.yaml (Applied and Running).
+
+CI/CD: Your Jenkinsfile from earlier (which ties it all together).
+
+Do you see the "Running" status when you type kubectl get pods? If yes, you are officially a DevOps beginner!
+
+STILL IM LAGGING
+
+I see exactly where you are stuck. Your Dockerfile is currently broken because the commands are missing their first letters (like DIR instead of WORKDIR). Docker won't understand those instructions.
+
+Let’s fix this right now so you can move forward.
+
+🛠 Step 1: Fix the Dockerfile
+Please delete everything inside your current Dockerfile and paste this exact code. Make sure there are no extra letters at the start:
+
+Dockerfile
+# 1. Use a Java environment
+FROM openjdk:17-jdk-slim
+
+# 2. Copy your files into the container
+COPY . /app
+
+# 3. Set the working folder
+WORKDIR /app
+
+# 4. Compile the code
+RUN javac DiscountCalculator.java
+
+# 5. Run the code
+CMD ["java", "DiscountCalculator"]
+🚀 Step 2: Build the Image (Terminal)
+Once you save that file, look at the bottom of VS Code. You should see a Terminal. If not, press Ctrl + ~.
+
+Type this command and press Enter:
+
+PowerShell
+docker build -t discount-app .
+(Wait for it to finish. You should see "FINISHED" or "SUCCESS".)
+
+▶️ Step 3: Run the Container
+Now, type this command to see your code work:
+
+PowerShell
+docker run discount-app
+Expected Result: You should see Final Price: 70.0 printed in the terminal.
+
+📋 Why you were "lagging":
+Broken Commands: Docker needs specific words like FROM, COPY, and WORKDIR. Your file had DIR and mpile, which are not real Docker commands.
+
+Missing Compilation: Java files (.java) need to be compiled into classes (.class) before they can run. The javac command in the Dockerfile handles this.
+
+Try running those two commands in your terminal now. Does it show "Final Price: 70.0" or do you see a red error message?
+
+NOPE NEXT STEO
+
+If your Docker build and run worked, you have officially containerized your app! Now we move to the final stage of the project: Kubernetes (K8s).
+
+In your previous tasks, you ran a single container. In the real world, we use Kubernetes to run many copies of the same container so that if one crashes, the others keep working.
+
+☸️ Step 1: Create the Kubernetes Manifest
+In your discount-system folder, create a new file named deployment.yaml.
+
+Paste this exact code inside:
+
+YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discount-system-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: discount
+  template:
+    metadata:
+      labels:
+        app: discount
+    spec:
+      containers:
+      - name: discount-container
+        image: discount-app
+        imagePullPolicy: Never
+🚀 Step 2: Push to Kubernetes
+Open your Terminal at the bottom of VS Code and run this command:
+
+PowerShell
+kubectl apply -f deployment.yaml
+Wait! If you get an error saying "kubectl is not recognized," make sure you have enabled Kubernetes in Docker Desktop Settings (Settings > Kubernetes > Enable).
+
+📊 Step 3: Verify the Deployment
+To see if Kubernetes is actually running your code, type:
+
+PowerShell
+kubectl get pods
+What you want to see: You should see two rows starting with discount-system-deploy-... and the status should say Running.
+
+📝 Summary of what you just did:
+Java: Created the logic.
+
+Docker: Created the image (discount-app).
+
+Kubernetes: Created a "Deployment" that manages two copies (replicas) of your app.
+
+Run kubectl get pods and let me know if they show up as "Running"!
+
+The errors in your terminal show that Docker Desktop is not currently running, and because Docker is off, Kubernetes is also off.
+
+When you see failed to connect to the docker API and connection actively refused, it means the "engine" that runs these tools is asleep.
+
+🛠️ The Fix: Restart the Engines
+1. Open Docker Desktop
+Find the Docker Desktop app on your computer and open it.
+
+Look at the bottom left corner of the Docker Desktop window.
+
+You need to wait until the little whale icon turns Green and says "Engine Running."
+
+2. Turn on Kubernetes
+Once Docker is green, check the Kubernetes status (next to the whale). If it's not green:
+
+Go to Settings (gear icon) → Kubernetes.
+
+Click "Enable Kubernetes" and then "Apply & Restart."
+
+This can take 2–3 minutes. Don't run commands until it's finished!
+
+🚀 Try the Commands Again
+Once everything is green in Docker Desktop, go back to your VS Code terminal and run these:
+
+First, Build (since the previous one failed):
+
+PowerShell
+docker build -t discount-app .
+Second, Apply to Kubernetes:
+
+PowerShell
+kubectl apply -f deployment.yaml
+Third, Check if it worked:
+
+PowerShell
+kubectl get pods
+💡 Why did it say "Connection Refused"?
+Think of Docker Desktop like a power station. If the power station is off, your lights (Docker commands) and your appliances (Kubernetes) won't work. The error message is just your computer saying, "I'm trying to talk to Docker, but nobody is answering!"
+
+Is Docker Desktop showing a green status now?
+
+next
+
+Since you've run the apply command, the final step in a real DevOps workflow is to expose your application so you can actually see it running, and then verify everything is healthy.
+
+1. Expose the Service
+Currently, your pods are running inside a private network. To see the output, you need to create a "Service."
+
+In VS Code, create a file named service.yaml and paste this:
+
+YAML
+apiVersion: v1
+kind: Service
+metadata:
+  name: discount-service
+spec:
+  type: NodePort
+  selector:
+    app: discount
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30001
+Then run this in your terminal:
+
+PowerShell
+kubectl apply -f service.yaml
+2. The Final Verification (The "Proof")
+Run these two commands to take your final "Success" screenshots:
+
+Check Pods:
+
+PowerShell
+kubectl get pods
+Wait until they say STATUS: Running.
+
+Check Service:
+
+PowerShell
+kubectl get service discount-service
+3. Check the Logs
+Because this is a Java console app (not a website), it runs the calculation and then finishes. To see the "Final Price: 70.0" output from Kubernetes, you have to look at the logs of one of your pods.
+
+Find a pod name from your get pods list (e.g., discount-system-deploy-xyz) and run:
+
+PowerShell
+kubectl logs [YOUR_POD_NAME_HERE]
+🏆 Project Completed!
+You have successfully moved through the entire "beginner to pro" pipeline:
+
+Code: Wrote the Java logic.
+
+Test: Confirmed it with JUnit.
+
+Build: Created a Docker image.
+
+Orchestrate: Deployed it to a Kubernetes cluster with multiple replicas.
+
+
+
+
+If those pods are showing "Running," you are all finished with this assignment! Do you need help with any other parts of the tasks?
+
+
