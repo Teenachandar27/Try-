@@ -1,0 +1,213 @@
+Got it. Since your repository is named try, your folder structure and your Git commands will reflect that.
+
+Here is exactly how your local folder and your pom.xml should look to stay consistent:
+
+1. The Folder Structure
+Make sure your files are organized like this inside your try folder:
+
+Plaintext
+try/ (Your Root Folder)
+├── pom.xml
+├── Jenkinsfile
+└── src/
+    ├── main/
+    │   └── java/
+    │       └── com/example/
+    │           └── App.java
+    └── test/
+        └── java/
+            └── com/example/
+                └── AppTest.java
+2. Update your pom.xml
+In your pom.xml, set the <artifactId> to try so it matches your repo name.
+
+XML
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.example</groupId>
+    <artifactId>try</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+3. Final Push Commands
+Since you are in the try directory, run these in your VS Code terminal to update GitHub:
+
+Bash
+# Make sure you are inside the 'try' folder
+git add .
+git commit -m "Configured project structure for try repo"
+git push origin main
+4. Jenkins Configuration
+In Jenkins, when it asks for the Repository URL, ensure it ends in /try.git.
+
+For example: https://github.com/your-username/try.git
+
+Quick Tip: If you are using a lab computer and Maven isn't found, make sure you've added the Maven Home path in "Manage Jenkins" -> "Global Tool Configuration" and named it exactly what you call in your Jenkinsfile (usually just Maven 3).
+
+Does the local build (mvn clean compile) run without errors now?
+
+
+Re-initialize ONLY inside "my app"
+Make sure your terminal says PS C:\Users\LENOVO\Desktop\my app> at the bottom. Then run these commands:
+
+Start fresh:
+
+PowerShell
+git init
+Connect to your specific repo:
+
+PowerShell
+git remote add origin https://github.com/your-username/try.git
+Check what Git sees now:
+
+PowerShell
+git status
+Now it should only show your src, pom.xml, and Jenkinsfile in red, which is exactly what we want!
+
+Step 3: Add and Push
+Now that Git is focused on the right place, do this:
+
+PowerShell
+git add .
+git commit -m "Fixed folder scope"
+git branch -M main
+git push -u origin main
+Pro Tip for the Exam: If GitHub says "Updates were rejected because the remote contains work that you do not have locally," just run git push -f origin main to force your local code to overwrite the repo. Since you're starting from scratch, it's the fastest way to fix it.
+
+How does the git status look now? It should be a much shorter list!
+
+Run Jenkins
+Open your Jenkins dashboard.
+
+Click New Item -> Name it "Midterm-Project" -> Select Pipeline.
+
+Scroll down to Pipeline section.
+
+Definition: Pipeline script from SCM.
+
+SCM: Git.
+
+Repository URL: https://github.com/Teenachandar27/Try-.git
+
+Click Save, then click Build Now.
+
+
+
+Open Jenkins (localhost:8080) and click New Item.
+
+Enter a name and select Pipeline, then click OK.
+
+Scroll down to the Pipeline section.
+
+Change Definition to Pipeline script.
+
+Paste the following code. (Notice that I added a checkout step that points directly to your Desktop folder):
+
+Groovy
+pipeline {
+    agent any
+    stages {
+        stage('Checkout Local') {
+            steps {
+                // This tells Jenkins to grab code from your folder instead of GitHub
+                checkout([$class: 'GitSCM', 
+                    branches: [[name: '*/main']], 
+                    userRemoteConfigs: [[url: 'file:///C:/Users/LENOVO/Desktop/my app']]
+                ])
+            }
+        }
+        stage('Build') {
+            steps {
+                // For Windows localhost, use 'bat'
+                bat 'mvn clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+    }
+}
+3. Final Step: Run it
+Click Save.
+
+Click Build Now.
+
+Jenkins will now reach into your Desktop/my app folder, pull the code, and run the Maven commands.
+
+After you click **New Item**, follow these exact steps to link your **try** repository and get the pipeline running:
+
+### 1. Set the Name and Type
+* **Enter an item name:** Type `try-pipeline` (or any name you like).
+* **Select "Pipeline":** This is the crucial choice for the DevOps workflow you are doing.
+* **Click OK** at the bottom.
+
+### 2. Configure the Pipeline
+Scroll down until you see the **Pipeline** section. You have two ways to do this:
+
+#### Option A: Script from GitHub (Best for Exams)
+If you already pushed your **Jenkinsfile** to GitHub, use this:
+1.  **Definition:** Select **Pipeline script from SCM**.
+2.  **SCM:** Select **Git**.
+3.  **Repository URL:** Paste `https://github.com/Teenachandar27/Try-.git`.
+4.  **Branch Specifier:** Change `*/master` to `*/main` (since your branch is named **main**).
+5.  **Script Path:** Ensure it says `Jenkinsfile`.
+6.  Click **Save**.
+
+#### Option B: Direct Script (If you don't have a Jenkinsfile on GitHub)
+1.  **Definition:** Keep it as **Pipeline script**.
+2.  **Script:** Paste the code below directly into the box:
+
+```groovy
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3' // Ensure this name matches your Global Tool Configuration
+    }
+    stages {
+        stage('Build') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+    }
+}
+```
+
+---
+
+### 3. Run the Job
+Once you hit **Save**, you will be taken to the Project Page.
+1.  Click **Build Now** on the left-hand menu.
+2.  Look at the **Stage View** section in the middle of the screen.
+
+
+
+### 4. How to check if it worked
+* **Green Boxes:** Success! You have completed the CI/CD workflow.
+* **Red Boxes:** Something failed. Click on the red box or the **#1** under "Build History," then click **Console Output** to see the error message (e.g., a Java syntax error or Maven not being found).
+
+
+  
